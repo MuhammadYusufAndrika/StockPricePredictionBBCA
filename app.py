@@ -126,7 +126,7 @@ st.markdown(
       left: 0;
       top: 10px;
       width: 100vw;
-      height: 70px;
+      height: 70px; 
       pointer-events: none;
       z-index: 10;
     }
