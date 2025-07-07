@@ -63,7 +63,35 @@ st.markdown(
         font-weight: 600;
         margin-top: 1.5rem;
         margin-bottom: 1.5rem;
-        animation: fadeInUp 1.5s cubic-bezier(.39,.575,.56,1.000) both;
+        animation: fadeInUp 1.5s cubic-bezier(.39,.575,.56,1.000) both, result-glow 2.5s ease-in-out infinite alternate;
+        box-shadow: 0 0 0px #2196f3;
+        position: relative;
+        overflow: hidden;
+    }
+    @keyframes result-glow {
+      0% { box-shadow: 0 0 0px #2196f3; }
+      50% { box-shadow: 0 0 24px 6px #2196f3cc; }
+      100% { box-shadow: 0 0 0px #2196f3; }
+    }
+    .result-confetti {
+        position: absolute;
+        left: 0; right: 0; top: 0; height: 100%; pointer-events: none;
+        z-index: 2;
+    }
+    .confetti {
+        position: absolute;
+        width: 10px; height: 10px; border-radius: 50%;
+        opacity: 0.7;
+        animation: confetti-fall 1.8s linear infinite;
+    }
+    .confetti.c1 { background: #2196f3; left: 20%; animation-delay: 0s; }
+    .confetti.c2 { background: #64b5f6; left: 40%; animation-delay: 0.5s; }
+    .confetti.c3 { background: #1976d2; left: 60%; animation-delay: 1s; }
+    .confetti.c4 { background: #0d47a1; left: 80%; animation-delay: 1.3s; }
+    @keyframes confetti-fall {
+      0% { top: -15px; opacity: 0.7; }
+      80% { opacity: 0.7; }
+      100% { top: 100%; opacity: 0; }
     }
     .example-label {
         color: #b0b8d1;
@@ -105,10 +133,11 @@ st.markdown('<div class="subtitle">Bank Central Asia Stock Prediction</div>', un
 
 st.markdown('<div class="desc">Enter the latest stock data to get AI-powered predictions for BBCA\'s future performance</div>', unsafe_allow_html=True)
 
-# Animasi karakter stickman berjalan bolak-balik kiri-kanan (CSS only)
+# Animasi karakter stickman berjalan bolak-balik kiri-kanan + bola loncat di kiri-kanan
 st.markdown(
     '''
     <div style="width:100%;height:80px;position:relative;overflow:hidden;margin-bottom:1.5rem;">
+      <div class="ball-bounce ball-left"></div>
       <div class="stickman-run-bounce">
         <div class="stickman-walk">
           <div class="head"></div>
@@ -119,8 +148,30 @@ st.markdown(
           <div class="leg right"></div>
         </div>
       </div>
+      <div class="ball-bounce ball-right"></div>
     </div>
     <style>
+    .ball-bounce {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f7ca18 60%, #fffbe6 100%);
+      box-shadow: 0 2px 8px #0a2342aa;
+      z-index: 11;
+      top: 10px;
+      animation: ball-bounce-anim 1.2s cubic-bezier(.68,-0.55,.27,1.55) infinite;
+    }
+    .ball-left { left: 10px; }
+    .ball-right { right: 10px; animation-delay: 0.6s; }
+    @keyframes ball-bounce-anim {
+      0% { top: 10px; }
+      20% { top: 40px; }
+      40% { top: 10px; }
+      60% { top: 30px; }
+      80% { top: 10px; }
+      100% { top: 10px; }
+    }
     .stickman-run-bounce {
       position: absolute;
       left: 0;
@@ -292,7 +343,17 @@ if predict_btn:
         scaled_input = scaler.transform(input_data)
         model_selected = models[model_choice]
         prediction = model_selected.predict(scaled_input)
-        st.markdown(f'<div class="result-card">Model: <b>{model_choice}</b><br>Close Price Today = <b>Rp {prediction[0]:,.2f}</b></div>', unsafe_allow_html=True)
+        st.markdown('''
+        <div class="result-card">
+            <div class="result-confetti">
+                <div class="confetti c1"></div>
+                <div class="confetti c2"></div>
+                <div class="confetti c3"></div>
+                <div class="confetti c4"></div>
+            </div>
+            Model: <b>{model}</b><br>Close Price Today = <b>Rp {pred:,.2f}</b>
+        </div>
+        '''.format(model=model_choice, pred=prediction[0]), unsafe_allow_html=True)
 else:
     st.markdown('<div class="example-label">\U0001F4CD Result</div>', unsafe_allow_html=True)
     st.markdown('<div class="result-card">Close Price Today = ........</div>', unsafe_allow_html=True)
